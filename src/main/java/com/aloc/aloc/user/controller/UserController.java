@@ -1,5 +1,7 @@
 package com.aloc.aloc.user.controller;
 
+import com.aloc.aloc.user.dto.LoginRequestDto;
+import com.aloc.aloc.user.dto.LoginResponseDto;
 import com.aloc.aloc.user.dto.RegisterRequestDto;
 import com.aloc.aloc.user.dto.UserResponseDto;
 import com.aloc.aloc.user.service.UserService;
@@ -25,5 +27,11 @@ public class UserController {
     @GetMapping
     public List<UserResponseDto> getAllUsers() {
         return userService.getAllUsers();
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginRequestDto) {
+        LoginResponseDto loginResponseDto = userService.login(loginRequestDto);
+        return ResponseEntity.ok(loginResponseDto);
     }
 }
