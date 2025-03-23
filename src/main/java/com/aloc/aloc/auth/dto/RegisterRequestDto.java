@@ -1,4 +1,4 @@
-package com.aloc.aloc.user.dto;
+package com.aloc.aloc.auth.dto;
 
 import lombok.Getter;
 import lombok.Setter;
