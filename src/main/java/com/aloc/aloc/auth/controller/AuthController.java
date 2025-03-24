@@ -3,13 +3,11 @@ package com.aloc.aloc.auth.controller;
 import com.aloc.aloc.auth.dto.LoginRequestDto;
 import com.aloc.aloc.auth.dto.LoginResponseDto;
 import com.aloc.aloc.auth.dto.RegisterRequestDto;
+import com.aloc.aloc.auth.dto.TokenResponseDto;
 import com.aloc.aloc.auth.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,5 +26,11 @@ public class AuthController {
     public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginRequestDto) {
         LoginResponseDto loginResponseDto = authService.login(loginRequestDto);
         return ResponseEntity.ok(loginResponseDto);
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<TokenResponseDto> refresh(@RequestHeader("Authorization") String refreshToken) {
+        String token = refreshToken.replace("Bearer ", "");
+        return ResponseEntity.ok(authService.refreshToken(token));
     }
 }

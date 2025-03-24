@@ -22,6 +22,7 @@ public class JwtTokenProvider {
     private Key key;
 
     private final long ACCESS_TOKEN_VALIDITY_TIME = 1000*60*60; //유효 토큰 시간, 1시간
+    private final long refreshTokenValidityInMs = 1000*60*60*24*7; //7일
 
     @PostConstruct
     protected void init() {
@@ -38,7 +39,7 @@ public class JwtTokenProvider {
                 .setExpiration(new Date(now.getTime() + ACCESS_TOKEN_VALIDITY_TIME))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
-    }
+    } //access token
 
     public String getGithubId(String token) {
         return Jwts.parserBuilder().setSigningKey(key).build()
@@ -54,4 +55,16 @@ public class JwtTokenProvider {
             return false;
         }
     }
+
+    public String createRefreshToken(String githubId) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + refreshTokenValidityInMs);
+
+        return Jwts.builder()
+                .setSubject(githubId)
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    } //refresh token
 }

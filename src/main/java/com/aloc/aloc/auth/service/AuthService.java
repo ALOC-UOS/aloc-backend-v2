@@ -3,6 +3,7 @@ package com.aloc.aloc.auth.service;
 import com.aloc.aloc.auth.dto.LoginRequestDto;
 import com.aloc.aloc.auth.dto.LoginResponseDto;
 import com.aloc.aloc.auth.dto.RegisterRequestDto;
+import com.aloc.aloc.auth.dto.TokenResponseDto;
 import com.aloc.aloc.global.jwt.JwtTokenProvider;
 import com.aloc.aloc.user.entity.User;
 import com.aloc.aloc.user.repository.UserRepository;
@@ -41,7 +42,7 @@ public class AuthService {
         }
 
         String accessToken = jwtTokenProvider.createToken(user.getGithubId());
-        String refreshToken = "refresh_token";
+        String refreshToken = jwtTokenProvider.createRefreshToken(user.getGithubId());
         //아직 jwt 라이브러리 토큰 발급 만들지 X
 
         user.updateRefreshToken(refreshToken);
@@ -52,5 +53,22 @@ public class AuthService {
                 .refreshToken(refreshToken)
                 .username(user.getUsername())
                 .build();
+    }
+
+    public TokenResponseDto refreshToken(String refreshToken) {
+        if(!jwtTokenProvider.validateToken(refreshToken)){
+            throw new RuntimeException("Invalid refresh token.");
+        }
+
+        String githubId = jwtTokenProvider.getGithubId(refreshToken);
+        User user = userRepository.findByGithubId(githubId)
+                .orElseThrow(()->new RuntimeException("User not found."));
+
+        if(!refreshToken.equals(user.getRefreshToken())){
+            throw new RuntimeException("Invalid refresh token.");
+        }
+
+        String newAccessToken = jwtTokenProvider.createToken(githubId);
+        return new TokenResponseDto(newAccessToken);
     }
 }
